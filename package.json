@@ -1,0 +1,42 @@
+{
+  "name": "alpharing",
+  "version": "1.0.0",
+  "description": "Describe a trading strategy in English. Watch it compete against the world.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DivyamBanga/AlphaRing.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DivyamBanga/AlphaRing/issues"
+  },
+  "homepage": "https://github.com/DivyamBanga/AlphaRing#readme",
+  "dependencies": {
+    "framer-motion": "^12.36.0",
+    "lightweight-charts": "^5.1.0",
+    "next": "^14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.4.27",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.35",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^3.4.19",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

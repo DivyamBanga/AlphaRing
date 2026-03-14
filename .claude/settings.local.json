@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(npx next:*)",
+      "Bash(python scripts/download-data.py 2>&1)",
+      "Bash(python -c \"\nimport json\nwith open\\('public/data/stocks/AAPL.json'\\) as f:\n    data = json.load\\(f\\)\nprint\\(f'AAPL: {len\\(data\\)} days'\\)\nprint\\(f'First: {data[0]}'\\)\nprint\\(f'Last: {data[-1]}'\\)\nprint\\(\\)\nwith open\\('public/data/stocks/SPY.json'\\) as f:\n    data = json.load\\(f\\)\nprint\\(f'SPY: {len\\(data\\)} days'\\)\nprint\\(f'First: {data[0]}'\\)\nprint\\(f'Last: {data[-1]}'\\)\n\")",
+      "Bash(npx tsc:*)",
+      "Bash(npx tsx:*)"
+    ]
+  }
+}
