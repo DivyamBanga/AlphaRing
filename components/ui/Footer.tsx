@@ -1,8 +1,11 @@
 export default function Footer() {
   return (
-    <footer className="border-t border-surface-border py-8 px-4">
+    <footer className="relative py-10 px-4">
+      {/* Gradient top border */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-surface-border/60 to-transparent" />
+
       <div className="mx-auto max-w-6xl flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-        <p>
+        <p className="max-w-lg">
           AlphaRing is not financial advice. All backtesting uses historical
           data. Past performance does not predict future results.
         </p>

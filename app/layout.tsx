@@ -1,10 +1,23 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Outfit, Syne, JetBrains_Mono } from "next/font/google";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-body",
+});
+
+const syne = Syne({
+  subsets: ["latin"],
+  variable: "--font-display",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 export const metadata: Metadata = {
   title: "AlphaRing — Describe a trading strategy. Watch it compete.",
@@ -30,8 +43,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.className}>
-      <body className="min-h-screen bg-surface text-white antialiased">
+    <html
+      lang="en"
+      className={`${outfit.variable} ${syne.variable} ${jetbrainsMono.variable}`}
+    >
+      <body className="min-h-screen bg-surface text-white antialiased font-body">
         <Navbar />
         <main className="pt-14">{children}</main>
         <Footer />
