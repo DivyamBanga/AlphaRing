@@ -12,3 +12,43 @@ body {
   background: var(--background);
   font-family: system-ui, -apple-system, sans-serif;
 }
+
+/* Animated grid background */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: grid-shift 20s linear infinite;
+}
+
+@keyframes grid-shift {
+  0% { background-position: 0 0; }
+  100% { background-position: 60px 60px; }
+}
+
+/* Glow effect for accent elements */
+.glow-accent {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.15), 0 0 60px rgba(0, 212, 255, 0.05);
+}
+
+/* Grade badge colors */
+.grade-a { color: #22C55E; border-color: #22C55E; }
+.grade-b { color: #EAB308; border-color: #EAB308; }
+.grade-c { color: #F97316; border-color: #F97316; }
+.grade-d { color: #F97316; border-color: #F97316; }
+.grade-f { color: #EF4444; border-color: #EF4444; }
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar for leaderboard horizontal scroll on mobile */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

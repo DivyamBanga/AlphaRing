@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import Navbar from "@/components/ui/Navbar";
+import Footer from "@/components/ui/Footer";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "AlphaRing — Describe a trading strategy. Watch it compete.",
@@ -25,9 +30,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.className}>
       <body className="min-h-screen bg-surface text-white antialiased">
-        {children}
+        <Navbar />
+        <main className="pt-14">{children}</main>
+        <Footer />
       </body>
     </html>
   );
