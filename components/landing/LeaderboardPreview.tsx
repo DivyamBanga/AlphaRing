@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import GradeBadge from "@/components/ui/GradeBadge";
 
@@ -54,6 +55,7 @@ function RankBadge({ rank }: { rank: number }) {
 }
 
 export default function LeaderboardPreview() {
+  const router = useRouter();
   const [strategies, setStrategies] =
     useState<LeaderboardEntry[]>(FALLBACK_DATA);
 
@@ -113,7 +115,8 @@ export default function LeaderboardPreview() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.06, duration: 0.3 }}
-              className={`grid grid-cols-[3rem_1fr_5rem_5rem_5rem_3.5rem] gap-2 px-5 py-3.5 items-center text-sm hover:bg-accent/[0.02] transition-colors ${
+              onClick={() => router.push(`/strategy/${entry.id}`)}
+              className={`grid grid-cols-[3rem_1fr_5rem_5rem_5rem_3.5rem] gap-2 px-5 py-3.5 items-center text-sm hover:bg-accent/[0.02] transition-colors cursor-pointer ${
                 i < strategies.length - 1
                   ? "border-b border-surface-border/30"
                   : ""

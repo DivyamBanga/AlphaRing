@@ -1,95 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  SORTED_STRATEGIES,
+  STRATEGY_TYPE_LABELS,
+  type StrategyType,
+} from "@/lib/mock-strategies";
 
 /**
  * Query the leaderboard.
  * NOTE: Supabase integration will be added in Phase 7.
- * For now, returns mock data from pre-seeded strategies.
+ * For now, returns data from pre-seeded mock strategies.
  */
-
-const MOCK_LEADERBOARD = [
-  {
-    id: "1",
-    rank: 1,
-    name: "Bollinger Breakout",
-    creator: "AlphaRing",
-    returnPct: 739.7,
-    sharpeRatio: 1.58,
-    maxDrawdownPct: 16.74,
-    winRatePct: 59.56,
-    grade: "B+",
-    compositeScore: 79.0,
-  },
-  {
-    id: "2",
-    rank: 2,
-    name: "Golden Cross Rider",
-    creator: "AlphaRing",
-    returnPct: 390.22,
-    sharpeRatio: 0.93,
-    maxDrawdownPct: 32.8,
-    winRatePct: 57.69,
-    grade: "C",
-    compositeScore: 50.3,
-  },
-  {
-    id: "3",
-    rank: 3,
-    name: "Boomer Portfolio",
-    creator: "AlphaRing",
-    returnPct: 229.56,
-    sharpeRatio: 0.9,
-    maxDrawdownPct: 23.5,
-    winRatePct: 60.31,
-    grade: "D",
-    compositeScore: 47.8,
-  },
-  {
-    id: "4",
-    rank: 4,
-    name: "Momentum Dip Buyer",
-    creator: "AlphaRing",
-    returnPct: 115.21,
-    sharpeRatio: 0.59,
-    maxDrawdownPct: 25.98,
-    winRatePct: 50.79,
-    grade: "F",
-    compositeScore: 36.4,
-  },
-  {
-    id: "5",
-    rank: 5,
-    name: "Mean Reversion Nerd",
-    creator: "AlphaRing",
-    returnPct: 50.05,
-    sharpeRatio: 0.36,
-    maxDrawdownPct: 33.11,
-    winRatePct: 49.72,
-    grade: "F",
-    compositeScore: 27.2,
-  },
-  {
-    id: "6",
-    rank: 6,
-    name: "WSB Degen",
-    creator: "AlphaRing",
-    returnPct: 46.32,
-    sharpeRatio: 0.28,
-    maxDrawdownPct: 72.13,
-    winRatePct: 49.56,
-    grade: "F",
-    compositeScore: 19.1,
-  },
-];
-
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1");
   const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
   const sortBy = searchParams.get("sortBy") || "compositeScore";
+  const sortDir = searchParams.get("sortDir") || "desc";
   const search = searchParams.get("search")?.toLowerCase();
+  const typeFilter = searchParams.get("type") as StrategyType | null;
 
-  // TODO Phase 7: Query Supabase instead
-  let results = [...MOCK_LEADERBOARD];
+  let results = [...SORTED_STRATEGIES];
 
   // Search filter
   if (search) {
@@ -100,25 +30,69 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Sort
-  const sortKey = sortBy as keyof (typeof MOCK_LEADERBOARD)[0];
-  if (sortKey in results[0]) {
-    results.sort((a, b) => {
-      const aVal = a[sortKey];
-      const bVal = b[sortKey];
-      if (typeof aVal === "number" && typeof bVal === "number") {
-        return bVal - aVal;
-      }
-      return 0;
-    });
+  // Type filter
+  if (typeFilter && typeFilter in STRATEGY_TYPE_LABELS) {
+    results = results.filter((s) => s.type === typeFilter);
   }
+
+  // Sort
+  type SortKey =
+    | "compositeScore"
+    | "returnPct"
+    | "sharpeRatio"
+    | "maxDrawdownPct"
+    | "winRatePct"
+    | "name";
+
+  const validSortKeys: SortKey[] = [
+    "compositeScore",
+    "returnPct",
+    "sharpeRatio",
+    "maxDrawdownPct",
+    "winRatePct",
+    "name",
+  ];
+
+  const sortKey = validSortKeys.includes(sortBy as SortKey)
+    ? (sortBy as SortKey)
+    : "compositeScore";
+
+  results.sort((a, b) => {
+    const aVal = a[sortKey];
+    const bVal = b[sortKey];
+    if (typeof aVal === "number" && typeof bVal === "number") {
+      return sortDir === "asc" ? aVal - bVal : bVal - aVal;
+    }
+    if (typeof aVal === "string" && typeof bVal === "string") {
+      return sortDir === "asc"
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal);
+    }
+    return 0;
+  });
 
   // Paginate
   const start = (page - 1) * limit;
   const paged = results.slice(start, start + limit);
 
+  // Return leaderboard-level fields (no equity curves or trade logs)
+  const strategies = paged.map((s, i) => ({
+    id: s.id,
+    rank: start + i + 1,
+    name: s.name,
+    creator: s.creator,
+    type: s.type,
+    returnPct: s.returnPct,
+    sharpeRatio: s.sharpeRatio,
+    maxDrawdownPct: s.maxDrawdownPct,
+    winRatePct: s.winRatePct,
+    totalTrades: s.totalTrades,
+    grade: s.grade,
+    compositeScore: s.compositeScore,
+  }));
+
   return NextResponse.json({
-    strategies: paged,
+    strategies,
     total: results.length,
     page,
     limit,
