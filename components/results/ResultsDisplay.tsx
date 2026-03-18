@@ -6,6 +6,7 @@ import type { StrategyConfig } from "@/lib/strategy-schema";
 import type { BacktestResult, TradeRecord } from "@/lib/backtester";
 import type { Grade } from "@/lib/grading";
 import EquityCurve from "@/components/ui/EquityCurve";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 // ─── Stats Grid ──────────────────────────────────────────
 
@@ -192,6 +193,7 @@ interface ResultsDisplayProps {
   strategy: StrategyConfig;
   result: BacktestResult;
   grade: Grade;
+  englishPrompt?: string;
   onEdit: () => void;
   onTryAnother: () => void;
 }
@@ -200,11 +202,14 @@ export default function ResultsDisplay({
   strategy,
   result,
   grade,
+  englishPrompt,
   onEdit,
   onTryAnother,
 }: ResultsDisplayProps) {
+  const { user, signInWithGitHub } = useAuth();
   const [gradeRevealed, setGradeRevealed] = useState(false);
   const [deployed, setDeployed] = useState(false);
+  const [deployError, setDeployError] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setGradeRevealed(true), 300);
@@ -212,29 +217,42 @@ export default function ResultsDisplay({
   }, []);
 
   async function handleDeploy() {
+    if (!user) {
+      signInWithGitHub();
+      return;
+    }
+
+    setDeployError(null);
     try {
       const response = await fetch("/api/deploy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           strategy,
+          englishPrompt: englishPrompt || strategy.description,
           result: {
             totalReturnPct: result.totalReturnPct,
             sharpeRatio: result.sharpeRatio,
             maxDrawdownPct: result.maxDrawdownPct,
             winRatePct: result.winRatePct,
             totalTrades: result.totalTrades,
+            avgTradeDuration: result.avgTradeDuration,
             grade: grade.letter,
             compositeScore: grade.score,
+            equityCurve: result.equityCurve,
+            tradeLog: result.tradeLog,
           },
         }),
       });
 
       if (response.ok) {
         setDeployed(true);
+      } else {
+        const data = await response.json();
+        setDeployError(data.error || "Deploy failed");
       }
     } catch {
-      // Deploy is stubbed anyway, so silently handle
+      setDeployError("Failed to connect. Please try again.");
     }
   }
 
@@ -351,17 +369,26 @@ export default function ResultsDisplay({
         transition={{ delay: 0.9 }}
         className="flex flex-col sm:flex-row gap-3 pt-4 pb-8"
       >
-        <button
-          onClick={handleDeploy}
-          disabled={deployed}
-          className={`flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 btn-shine ${
-            deployed
-              ? "bg-profit/20 text-profit border border-profit/30 cursor-default"
-              : "bg-gradient-to-r from-accent to-cyan-300 text-surface hover:shadow-lg hover:shadow-accent/25 hover:scale-[1.01]"
-          }`}
-        >
-          {deployed ? "Deployed!" : "Deploy to Leaderboard"}
-        </button>
+        <div className="flex-1 space-y-2">
+          <button
+            onClick={handleDeploy}
+            disabled={deployed}
+            className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 btn-shine ${
+              deployed
+                ? "bg-profit/20 text-profit border border-profit/30 cursor-default"
+                : "bg-gradient-to-r from-accent to-cyan-300 text-surface hover:shadow-lg hover:shadow-accent/25 hover:scale-[1.01]"
+            }`}
+          >
+            {deployed
+              ? "Deployed!"
+              : user
+                ? "Deploy to Leaderboard"
+                : "Sign In to Deploy"}
+          </button>
+          {deployError && (
+            <p className="text-xs text-loss text-center">{deployError}</p>
+          )}
+        </div>
         <button
           onClick={onTryAnother}
           className="py-3.5 px-6 rounded-xl border border-surface-border/80 text-gray-300 font-semibold text-sm hover:border-accent/30 hover:text-white transition-all"

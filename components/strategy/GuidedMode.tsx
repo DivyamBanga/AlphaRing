@@ -6,7 +6,7 @@ import type { StrategyConfig } from "@/lib/strategy-schema";
 
 interface GuidedModeProps {
   initialPrompt: string;
-  onStrategyReady: (strategy: StrategyConfig) => void;
+  onStrategyReady: (strategy: StrategyConfig, prompt?: string) => void;
 }
 
 type Step = 1 | 2 | 3;
@@ -370,7 +370,7 @@ export default function GuidedMode({
                 Back
               </button>
               <button
-                onClick={() => onStrategyReady(strategy)}
+                onClick={() => onStrategyReady(strategy, prompt.trim())}
                 className="flex-1 py-3 rounded-xl bg-gradient-to-r from-accent to-cyan-300 text-surface font-semibold text-sm hover:shadow-lg hover:shadow-accent/25 transition-all duration-300 btn-shine"
               >
                 Forge It

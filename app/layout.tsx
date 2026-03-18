@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit, Syne, JetBrains_Mono } from "next/font/google";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
+import AuthProvider from "@/components/providers/AuthProvider";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -48,9 +49,11 @@ export default function RootLayout({
       className={`${outfit.variable} ${syne.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen bg-surface text-white antialiased font-body">
-        <Navbar />
-        <main className="pt-14">{children}</main>
-        <Footer />
+        <AuthProvider>
+          <Navbar />
+          <main className="pt-14">{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

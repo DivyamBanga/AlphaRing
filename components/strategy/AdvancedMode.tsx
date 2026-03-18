@@ -18,7 +18,7 @@ const TICKERS_BY_SECTOR: Record<string, string[]> = {
 
 interface AdvancedModeProps {
   initialPrompt: string;
-  onStrategyReady: (strategy: StrategyConfig) => void;
+  onStrategyReady: (strategy: StrategyConfig, prompt?: string) => void;
 }
 
 export default function AdvancedMode({
@@ -64,7 +64,7 @@ export default function AdvancedMode({
           strategy.max_positions = maxPositions;
           strategy.max_position_pct = maxPositionPct;
         }
-        onStrategyReady(strategy);
+        onStrategyReady(strategy, prompt.trim());
       } else if (result.type === "error" || result.error) {
         setError(result.message || result.error);
       } else {

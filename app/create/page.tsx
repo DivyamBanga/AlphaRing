@@ -23,14 +23,19 @@ function CreateContent() {
 
   const [phase, setPhase] = useState<Phase>("input");
   const [strategy, setStrategy] = useState<StrategyConfig | null>(null);
+  const [englishPrompt, setEnglishPrompt] = useState("");
   const [result, setResult] = useState<BacktestResult | null>(null);
   const [grade, setGrade] = useState<Grade | null>(null);
 
-  const handleStrategyReady = useCallback((strat: StrategyConfig) => {
-    setStrategy(strat);
-    setPhase("forge");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+  const handleStrategyReady = useCallback(
+    (strat: StrategyConfig, prompt?: string) => {
+      setStrategy(strat);
+      if (prompt) setEnglishPrompt(prompt);
+      setPhase("forge");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    []
+  );
 
   const handleForgeComplete = useCallback(
     (res: BacktestResult, gr: Grade) => {
@@ -51,6 +56,7 @@ function CreateContent() {
   const handleTryAnother = useCallback(() => {
     setPhase("input");
     setStrategy(null);
+    setEnglishPrompt("");
     setResult(null);
     setGrade(null);
     router.push(`/create?mode=${mode}`);
@@ -144,6 +150,7 @@ function CreateContent() {
               strategy={strategy}
               result={result}
               grade={grade}
+              englishPrompt={englishPrompt}
               onEdit={handleEdit}
               onTryAnother={handleTryAnother}
             />
