@@ -569,11 +569,7 @@ export default function StrategyDetailPage() {
             Create Similar Strategy
           </button>
           <button
-            onClick={() =>
-              router.push(
-                `/create?mode=advanced&challenge=${strategy.id}&prompt=Beat "${strategy.name}" strategy`
-              )
-            }
+            onClick={() => router.push(`/compare/${strategy.id}`)}
             className="py-3.5 px-6 rounded-xl border border-accent/25 text-accent font-semibold text-sm hover:bg-accent/10 hover:border-accent/40 transition-all"
           >
             Challenge This Strategy
