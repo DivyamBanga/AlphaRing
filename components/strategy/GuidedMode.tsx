@@ -185,12 +185,12 @@ export default function GuidedMode({
               it.
             </p>
 
-            <div className="gradient-border rounded-2xl">
+            <div className="border border-[#222] bg-[#0D0D0D]">
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder={`Tell me your trading idea in plain English...\n\ne.g. "I want to buy stocks that dropped a lot and sell them when they recover"`}
-                className="w-full h-36 bg-transparent p-5 text-gray-200 placeholder-gray-600 resize-none focus:outline-none font-body text-sm leading-relaxed"
+                className="w-full h-36 bg-transparent p-5 text-[#C0C0BE] placeholder-[#2A2A2A] resize-none focus:outline-none font-mono text-sm leading-relaxed"
                 disabled={isLoading}
                 autoFocus
               />
@@ -205,7 +205,7 @@ export default function GuidedMode({
             <button
               onClick={handleStep1Submit}
               disabled={!prompt.trim() || isLoading}
-              className="mt-6 w-full py-4 rounded-xl bg-gradient-to-r from-accent to-cyan-300 text-surface font-semibold text-sm hover:shadow-lg hover:shadow-accent/25 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed btn-shine"
+              className="btn-shine mt-6 w-full py-4 bg-accent text-[#080808] font-display font-black text-sm uppercase tracking-[0.1em] hover:bg-accent-light transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -278,7 +278,7 @@ export default function GuidedMode({
               <button
                 onClick={handleStep2Submit}
                 disabled={isLoading}
-                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-accent to-cyan-300 text-surface font-semibold text-sm hover:shadow-lg hover:shadow-accent/25 transition-all duration-300 disabled:opacity-40 btn-shine"
+                className="btn-shine flex-1 py-3 bg-accent text-[#080808] font-display font-black text-sm uppercase tracking-[0.1em] hover:bg-accent-light transition-colors disabled:opacity-30"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -371,7 +371,7 @@ export default function GuidedMode({
               </button>
               <button
                 onClick={() => onStrategyReady(strategy, prompt.trim())}
-                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-accent to-cyan-300 text-surface font-semibold text-sm hover:shadow-lg hover:shadow-accent/25 transition-all duration-300 btn-shine"
+                className="btn-shine flex-1 py-3 bg-accent text-[#080808] font-display font-black text-sm uppercase tracking-[0.1em] hover:bg-accent-light transition-colors"
               >
                 Forge It
               </button>

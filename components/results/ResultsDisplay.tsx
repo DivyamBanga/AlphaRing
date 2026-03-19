@@ -373,10 +373,10 @@ export default function ResultsDisplay({
           <button
             onClick={handleDeploy}
             disabled={deployed}
-            className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 btn-shine ${
+            className={`btn-shine w-full py-3.5 font-display font-black text-sm uppercase tracking-[0.1em] transition-colors ${
               deployed
                 ? "bg-profit/20 text-profit border border-profit/30 cursor-default"
-                : "bg-gradient-to-r from-accent to-cyan-300 text-surface hover:shadow-lg hover:shadow-accent/25 hover:scale-[1.01]"
+                : "bg-accent text-[#080808] hover:bg-accent-light"
             }`}
           >
             {deployed

@@ -1,23 +1,20 @@
 import type { Metadata } from "next";
-import { Outfit, Syne, JetBrains_Mono } from "next/font/google";
+import { Barlow_Condensed, JetBrains_Mono } from "next/font/google";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import AuthProvider from "@/components/providers/AuthProvider";
 import "./globals.css";
 
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-body",
-});
-
-const syne = Syne({
+const barlowCondensed = Barlow_Condensed({
   subsets: ["latin"],
   variable: "--font-display",
+  weight: ["400", "600", "700", "800", "900"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -46,12 +43,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${syne.variable} ${jetbrainsMono.variable}`}
+      className={`${barlowCondensed.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="min-h-screen bg-surface text-white antialiased font-body">
+      <body className="min-h-screen bg-surface text-white antialiased font-mono">
         <AuthProvider>
           <Navbar />
-          <main className="pt-14">{children}</main>
+          <main className="pt-12">{children}</main>
           <Footer />
         </AuthProvider>
       </body>

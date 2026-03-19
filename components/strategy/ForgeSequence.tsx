@@ -58,7 +58,7 @@ function highlightCode(line: string): ReactNode {
       for (const token of tokens) {
         if (kwSet.has(token)) {
           segments.push(
-            <span key={key++} className="text-purple-400">{token}</span>
+            <span key={key++} className="text-accent">{token}</span>
           );
         } else if (/^\d+\.?\d*$/.test(token)) {
           segments.push(
@@ -222,7 +222,7 @@ export default function ForgeSequence({
         <p className="text-sm text-gray-500 mb-6">{error}</p>
         <button
           onClick={onEdit}
-          className="px-6 py-3 rounded-xl bg-gradient-to-r from-accent to-cyan-300 text-surface font-semibold text-sm btn-shine"
+          className="btn-shine px-6 py-3 bg-accent text-[#080808] font-display font-black text-sm uppercase tracking-[0.1em] hover:bg-accent-light transition-colors"
         >
           Edit Strategy
         </button>
@@ -359,9 +359,9 @@ export default function ForgeSequence({
             transition={{ duration: 0.4 }}
           >
             <div className="text-center mb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 mb-4">
-                <div className="w-1.5 h-1.5 rounded-full bg-purple-400 live-dot" />
-                <span className="text-xs font-mono text-purple-400/80">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-accent/20 bg-accent/[0.06] mb-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-accent live-dot" />
+                <span className="text-[10px] font-mono text-accent uppercase tracking-[0.2em]">
                   GENERATING ALGORITHM
                 </span>
               </div>

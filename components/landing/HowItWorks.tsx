@@ -5,72 +5,82 @@ import { motion } from "framer-motion";
 const steps = [
   {
     number: "01",
-    title: "Describe",
+    title: "DESCRIBE",
     description:
-      "Type your trading strategy in plain English. No code, no formulas — just your idea.",
-    accent: "from-accent/20 to-accent/0",
+      "Type your trading idea in plain English. No formulas, no code. Just say what you'd do.",
+    example: '"Buy when RSI dips below 30 and volume is 2x normal"',
   },
   {
     number: "02",
-    title: "Backtest",
+    title: "BACKTEST",
     description:
-      "Your strategy runs against 10 years of real market data. See the results in seconds.",
-    accent: "from-cyan-400/20 to-cyan-400/0",
+      "The engine converts your words into an algorithm and runs it against 10 years of real market data in seconds.",
+    example: "Runs across 50 stocks · 2,520 trading days · Client-side",
   },
   {
     number: "03",
-    title: "Compete",
+    title: "COMPETE",
     description:
-      "Deploy to the global leaderboard. See how your idea ranks against everyone else's.",
-    accent: "from-emerald-400/20 to-emerald-400/0",
+      "Your result goes on the global leaderboard. Same data for everyone. Ranked by composite score.",
+    example: "Sharpe ratio · Max drawdown · Win rate · Return",
   },
 ];
 
 export default function HowItWorks() {
   return (
-    <section className="py-24 px-4">
-      <div className="mx-auto max-w-4xl">
+    <section className="py-20 px-4 border-t border-[#1A1A1A]">
+      <div className="mx-auto max-w-7xl">
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-14"
+          transition={{ duration: 0.4 }}
+          className="mb-12"
         >
-          <span className="text-xs font-mono text-accent/60 uppercase tracking-[0.2em] mb-3 block">
-            HOW IT WORKS
+          <span className="text-[9px] font-mono text-[#444] uppercase tracking-[0.3em] block mb-3">
+            How It Works
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold">
-            Three steps. Zero complexity.
+          <h2 className="font-display font-black text-[clamp(1.8rem,4vw,3rem)] uppercase leading-none text-[#F0F0EE] tracking-tight">
+            Three Steps.<br />Zero Complexity.
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* Steps — horizontal with connecting lines */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 relative">
           {steps.map((step, i) => (
             <motion.div
               key={step.number}
-              initial={{ opacity: 0, y: 25 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.12, duration: 0.5 }}
-              className="group relative rounded-xl border border-surface-border/60 bg-surface-card p-6 hover:border-accent/20 transition-all duration-300"
+              transition={{ delay: i * 0.1, duration: 0.4 }}
+              className={`relative p-6 md:p-8 border border-[#1A1A1A] ${
+                i > 0 ? "md:border-l-0" : ""
+              } bg-[#0A0A0A] hover:bg-[#0D0D0D] transition-colors group`}
             >
-              {/* Gradient top edge */}
-              <div
-                className={`absolute top-0 left-4 right-4 h-px bg-gradient-to-r ${step.accent}`}
-              />
-
               {/* Step number */}
-              <span className="text-3xl font-mono font-bold text-accent/15 group-hover:text-accent/25 transition-colors">
-                {step.number}
-              </span>
+              <div className="flex items-start justify-between mb-6">
+                <span className="font-display font-black text-[4rem] leading-none text-[#1A1A1A] group-hover:text-[#222] transition-colors">
+                  {step.number}
+                </span>
+                {i < steps.length - 1 && (
+                  <div className="hidden md:block text-[#2A2A2A] text-xl mt-2">→</div>
+                )}
+              </div>
 
-              <h3 className="font-display text-xl font-semibold mt-3 mb-2">
+              {/* Accent line */}
+              <div className="w-8 h-0.5 bg-accent mb-4" />
+
+              <h3 className="font-display font-black text-xl uppercase tracking-[0.08em] text-[#F0F0EE] mb-3">
                 {step.title}
               </h3>
-              <p className="text-sm text-gray-400 leading-relaxed">
+              <p className="text-[11px] font-mono text-[#555] leading-relaxed mb-4">
                 {step.description}
               </p>
+              <div className="text-[10px] font-mono text-[#3A3A3A] italic">
+                {step.example}
+              </div>
             </motion.div>
           ))}
         </div>

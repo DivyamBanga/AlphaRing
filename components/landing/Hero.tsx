@@ -4,52 +4,54 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-/* ── Typewriter Terminal Demo ──────────────────────── */
+/* ── Ticker bar data ─────────────────────────────── */
+const tickerItems = [
+  { label: "AAPL", value: "+12.4%", up: true },
+  { label: "TSLA", value: "-3.2%", up: false },
+  { label: "NVDA", value: "+28.7%", up: true },
+  { label: "SPY", value: "+9.1%", up: true },
+  { label: "QQQ", value: "+14.3%", up: true },
+  { label: "MSFT", value: "+18.9%", up: true },
+  { label: "AMZN", value: "+7.6%", up: true },
+  { label: "GOOG", value: "-1.8%", up: false },
+  { label: "META", value: "+22.1%", up: true },
+  { label: "BRK.B", value: "+5.4%", up: true },
+];
 
+/* ── Terminal demo ────────────────────────────────── */
 const demoSteps = [
   {
-    label: "YOU TYPE",
-    text: '"Buy tech stocks when they dip 10% and sell when they bounce back"',
+    prompt: "$ strategy.describe",
+    text: '"Buy tech stocks when they dip 10% and volume spikes"',
+    color: "#F0F0EE",
   },
   {
-    label: "ALPHARING GENERATES",
-    text: "entry: price_change_pct(10) <= -10 AND volume_ratio(20) >= 1.2",
+    prompt: "$ algorithm.compile",
+    text: "price_change_pct(10) <= -10 AND volume_ratio(20) >= 1.2",
+    color: "#C5FF00",
   },
   {
-    label: "BACKTEST RESULT",
-    text: "+215% return  \u00B7  Sharpe 1.12  \u00B7  Grade: A",
+    prompt: "$ backtest.run --years=10",
+    text: "RETURN: +215.4%  |  SHARPE: 1.12  |  GRADE: A",
+    color: "#00E57A",
   },
 ];
 
-const LABEL_STYLES = [
-  "text-gray-500",
-  "text-accent/60",
-  "text-profit/60",
-];
-
-const TEXT_STYLES = [
-  "text-gray-300",
-  "text-accent",
-  "text-profit",
-];
-
-const TYPING_SPEEDS = [40, 25, 20];
+const TYPING_SPEEDS = [28, 18, 14];
 
 function DemoTerminal() {
   const [lines, setLines] = useState(["", "", ""]);
   const [currentStep, setCurrentStep] = useState(-1);
   const [cursorStep, setCursorStep] = useState(-1);
 
-  // Start typing after mount delay
   useEffect(() => {
     const t = setTimeout(() => {
       setCurrentStep(0);
       setCursorStep(0);
-    }, 1500);
+    }, 800);
     return () => clearTimeout(t);
   }, []);
 
-  // Typewriter engine
   useEffect(() => {
     if (currentStep < 0 || currentStep >= demoSteps.length) return;
 
@@ -68,12 +70,11 @@ function DemoTerminal() {
       if (i >= fullText.length) {
         clearInterval(interval);
         setCursorStep(-1);
-
-        if (currentStep < 2) {
+        if (currentStep < demoSteps.length - 1) {
           nextStepTimeout = setTimeout(() => {
             setCurrentStep((s) => s + 1);
             setCursorStep(currentStep + 1);
-          }, 600);
+          }, 500);
         }
       }
     }, TYPING_SPEEDS[currentStep]);
@@ -85,130 +86,198 @@ function DemoTerminal() {
   }, [currentStep]);
 
   return (
-    <div className="rounded-xl border border-surface-border/50 bg-surface-card/80 backdrop-blur-sm overflow-hidden glow-accent">
+    <div className="border border-[#222] bg-[#0D0D0D] overflow-hidden">
       {/* Terminal chrome */}
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-surface-border/30 bg-surface-elevated/30">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-[#1A1A1A] bg-[#0A0A0A]">
         <div className="flex gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-loss/50" />
-          <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/50" />
-          <div className="w-2.5 h-2.5 rounded-full bg-profit/50" />
+          <div className="w-2 h-2 rounded-full bg-[#FF3D3D]/60" />
+          <div className="w-2 h-2 rounded-full bg-[#F59E0B]/60" />
+          <div className="w-2 h-2 rounded-full bg-[#00E57A]/60" />
         </div>
-        <span className="text-[10px] font-mono text-gray-600 ml-2 uppercase tracking-[0.2em]">
-          alpharing terminal
+        <span className="text-[9px] font-mono text-[#444] uppercase tracking-[0.3em]">
+          ALPHARING TERMINAL v2.0
         </span>
+        <div className="w-12" />
       </div>
 
       {/* Terminal body */}
-      <div className="p-5 sm:p-6 space-y-4">
+      <div className="p-5 space-y-5 min-h-[200px]">
         {demoSteps.map((step, i) => (
           <div
             key={i}
-            className={`flex items-start gap-3 transition-all duration-500 ${
-              currentStep >= i
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-2"
+            className={`transition-all duration-300 ${
+              currentStep >= i ? "opacity-100" : "opacity-0"
             }`}
           >
-            <span
-              className={`text-[10px] uppercase tracking-[0.15em] w-28 sm:w-36 shrink-0 pt-0.5 font-mono font-medium ${LABEL_STYLES[i]}`}
+            <div className="text-[10px] text-[#444] mb-1 font-mono uppercase tracking-wider">
+              {step.prompt}
+            </div>
+            <div
+              className="text-sm font-mono leading-relaxed"
+              style={{ color: step.color }}
             >
-              {step.label}
-            </span>
-            <span className={`text-sm font-mono leading-relaxed ${TEXT_STYLES[i]}`}>
               {lines[i]}
               {cursorStep === i && (
-                <span className="cursor-blink ml-0.5 text-accent">
-                  &#9610;
-                </span>
+                <span className="cursor-blink ml-0.5 text-accent">█</span>
               )}
-            </span>
+            </div>
           </div>
         ))}
+        {currentStep >= 2 && lines[2].length >= demoSteps[2].text.length && (
+          <div className="pt-2 border-t border-[#1A1A1A]">
+            <div className="text-[10px] font-mono text-[#444] uppercase tracking-wider">
+              $ arena.deploy --submit
+            </div>
+            <div className="text-xs font-mono text-accent mt-1">
+              ✓ Strategy submitted to global leaderboard
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-/* ── Hero Section ──────────────────────────────────── */
-
+/* ── Hero Section ────────────────────────────────── */
 export default function Hero() {
   return (
-    <section className="relative min-h-[92vh] flex flex-col items-center justify-center px-4 pt-24 pb-20 grid-bg overflow-hidden">
-      {/* Atmospheric radial glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-accent/[0.035] rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] bg-purple-500/[0.015] rounded-full blur-[120px] pointer-events-none" />
+    <section className="relative grid-bg overflow-hidden">
+      {/* Ticker bar */}
+      <div className="border-b border-[#1A1A1A] bg-[#0A0A0A] overflow-hidden h-8 flex items-center">
+        <div className="shrink-0 px-4 border-r border-[#1A1A1A] h-full flex items-center">
+          <div className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-accent live-dot" />
+            <span className="text-[9px] font-mono text-accent uppercase tracking-[0.3em]">LIVE</span>
+          </div>
+        </div>
+        <div className="overflow-hidden flex-1">
+          <div className="ticker-track flex gap-8 px-6">
+            {[...tickerItems, ...tickerItems].map((item, i) => (
+              <span key={i} className="text-[10px] font-mono shrink-0 flex items-center gap-2">
+                <span className="text-[#555]">{item.label}</span>
+                <span className={item.up ? "text-profit" : "text-loss"}>{item.value}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="relative z-10 text-center max-w-4xl"
-      >
-        {/* Live badge */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/20 bg-accent/[0.06] mb-8"
-        >
-          <div className="w-1.5 h-1.5 rounded-full bg-accent live-dot" />
-          <span className="text-xs font-mono text-accent/80 tracking-wide">
-            STRATEGIES COMPETING NOW
-          </span>
-        </motion.div>
-
-        {/* Headline */}
-        <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-bold leading-[1.08] tracking-tight">
-          Describe a trading strategy.
-          <br />
-          <span className="text-gradient">Watch it compete.</span>
-        </h1>
-
-        {/* Subheadline */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-          className="mt-6 text-lg sm:text-xl text-gray-400 max-w-lg mx-auto leading-relaxed"
-        >
-          No code. No money. Just your idea vs the world.
-        </motion.p>
-
-        {/* CTA buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-          className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3"
-        >
-          <Link
-            href="/create?mode=guided"
-            className="btn-shine w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-accent to-cyan-300 text-surface font-semibold text-sm hover:shadow-lg hover:shadow-accent/25 hover:scale-[1.02] transition-all duration-300 text-center"
+      {/* Main hero content */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center min-h-[75vh]">
+          {/* Left: Headline */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
-            Start Building
-          </Link>
-          <Link
-            href="/create?mode=advanced"
-            className="w-full sm:w-auto px-8 py-3.5 rounded-xl border border-surface-border/80 text-gray-300 font-semibold text-sm hover:border-accent/30 hover:text-white hover:bg-accent/[0.04] transition-all duration-300 text-center"
-          >
-            I Know What I&apos;m Doing
-          </Link>
-        </motion.div>
-      </motion.div>
+            {/* Label */}
+            <div className="flex items-center gap-2 mb-8">
+              <div className="w-1.5 h-1.5 rounded-full bg-accent live-dot" />
+              <span className="text-[10px] font-mono text-[#555] uppercase tracking-[0.3em]">
+                Open Arena — Compete Now
+              </span>
+            </div>
 
-      {/* Demo Terminal */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{
-          delay: 0.9,
-          duration: 0.8,
-          ease: [0.25, 0.46, 0.45, 0.94],
-        }}
-        className="relative z-10 mt-16 w-full max-w-2xl"
-      >
-        <DemoTerminal />
-      </motion.div>
+            {/* Main headline */}
+            <h1 className="font-display font-black uppercase leading-[0.88] tracking-tight">
+              <span
+                className="block text-[clamp(3.5rem,8vw,6.5rem)] text-[#F0F0EE]"
+              >
+                DESCRIBE
+              </span>
+              <span
+                className="block text-[clamp(3.5rem,8vw,6.5rem)] text-[#F0F0EE]"
+              >
+                A TRADE.
+              </span>
+              <span
+                className="block text-[clamp(3.5rem,8vw,6.5rem)]"
+                style={{ color: "var(--accent)" }}
+              >
+                WATCH IT
+              </span>
+              <span
+                className="block text-[clamp(3.5rem,8vw,6.5rem)]"
+                style={{ color: "var(--accent)" }}
+              >
+                FIGHT.
+              </span>
+            </h1>
+
+            {/* Horizontal rule */}
+            <div className="my-8 flex items-center gap-4">
+              <div className="flex-1 h-px bg-[#1E1E1E]" />
+              <div className="w-1 h-1 bg-accent" />
+            </div>
+
+            {/* Subtext */}
+            <p className="text-[11px] text-[#555] uppercase tracking-[0.15em] leading-relaxed max-w-sm">
+              Type plain English → Algorithm generated → Backtested on 10yrs of real data → Ranked globally
+            </p>
+
+            {/* CTAs */}
+            <div className="mt-10 flex flex-col sm:flex-row gap-3">
+              <Link
+                href="/create?mode=guided"
+                className="btn-shine inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-accent text-[#080808] font-display font-black text-sm uppercase tracking-[0.1em] hover:bg-accent-light transition-colors"
+              >
+                Enter the Arena
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </Link>
+              <Link
+                href="/arena"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 border border-[#333] text-[#888] font-mono text-[10px] uppercase tracking-[0.15em] hover:border-accent/40 hover:text-[#F0F0EE] transition-all"
+              >
+                View Leaderboard
+              </Link>
+            </div>
+
+            {/* Stats strip */}
+            <div className="mt-12 flex items-center gap-6 pt-6 border-t border-[#1A1A1A]">
+              {[
+                { value: "10", label: "Years of data" },
+                { value: "50+", label: "Stocks covered" },
+                { value: "$0", label: "Cost forever" },
+              ].map((stat) => (
+                <div key={stat.label}>
+                  <div className="font-display font-black text-xl text-[#F0F0EE] leading-none">{stat.value}</div>
+                  <div className="text-[9px] text-[#444] uppercase tracking-wider mt-1">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Right: Terminal */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
+            {/* Terminal label */}
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[9px] font-mono text-[#444] uppercase tracking-[0.3em]">
+                LIVE DEMO
+              </span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-1 h-1 rounded-full bg-accent live-dot" />
+                <span className="text-[9px] font-mono text-[#444]">running</span>
+              </div>
+            </div>
+            <DemoTerminal />
+
+            {/* Subtle note */}
+            <p className="mt-3 text-[9px] font-mono text-[#3A3A3A] uppercase tracking-wider text-right">
+              No signup required to try it
+            </p>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Bottom accent line */}
+      <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(197,255,0,0.15), transparent)" }} />
     </section>
   );
 }

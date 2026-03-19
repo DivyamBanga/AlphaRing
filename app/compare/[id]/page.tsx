@@ -690,7 +690,7 @@ export default function ComparePage() {
                 {/* Create Yours */}
                 <button
                   onClick={() => router.push("/create?mode=advanced")}
-                  className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-accent to-cyan-300 text-surface font-semibold text-sm hover:shadow-lg hover:shadow-accent/25 hover:scale-[1.01] transition-all btn-shine"
+                  className="btn-shine flex-1 py-3.5 bg-accent text-[#080808] font-display font-black text-sm uppercase tracking-[0.1em] hover:bg-accent-light transition-colors"
                 >
                   Build a Better One
                 </button>

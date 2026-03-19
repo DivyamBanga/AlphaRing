@@ -1,26 +1,22 @@
 export default function Footer() {
   return (
-    <footer className="relative py-10 px-4">
-      {/* Gradient top border */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-surface-border/60 to-transparent" />
-
-      <div className="mx-auto max-w-6xl flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-        <p className="max-w-lg">
-          AlphaRing is not financial advice. All backtesting uses historical
-          data. Past performance does not predict future results.
+    <footer className="border-t border-[#1A1A1A] py-8 px-4">
+      <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <p className="text-[10px] text-[#444] uppercase tracking-wider max-w-md leading-relaxed">
+          Not financial advice. Historical backtests do not predict future returns.
+          All data is simulated for educational purposes.
         </p>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6 text-[10px] uppercase tracking-[0.15em]">
           <a
             href="https://github.com/DivyamBanga/AlphaRing"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-gray-300 transition-colors"
+            className="text-[#444] hover:text-accent transition-colors"
           >
             GitHub
           </a>
-          <span className="text-gray-600">
-            Built by{" "}
-            <span className="text-gray-400">DivCodes</span>
+          <span className="text-[#333]">
+            Built by <span className="text-[#555]">DivCodes</span>
           </span>
         </div>
       </div>

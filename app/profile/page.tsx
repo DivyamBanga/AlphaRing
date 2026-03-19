@@ -256,7 +256,7 @@ export default function ProfilePage() {
               <p className="text-gray-400 mb-4">No strategies deployed yet</p>
               <Link
                 href="/create?mode=advanced"
-                className="inline-flex px-5 py-2.5 rounded-xl bg-gradient-to-r from-accent to-cyan-300 text-surface font-semibold text-sm hover:shadow-lg hover:shadow-accent/25 transition-all btn-shine"
+                className="btn-shine inline-flex px-5 py-2.5 bg-accent text-[#080808] font-display font-black text-sm uppercase tracking-[0.1em] hover:bg-accent-light transition-colors"
               >
                 Create Your First Strategy
               </Link>
