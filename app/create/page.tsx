@@ -165,10 +165,11 @@ export default function CreatePage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[85vh] flex items-center justify-center">
-          <div className="flex items-center gap-3">
-            <div className="w-1.5 h-1.5 rounded-full bg-accent live-dot" />
-            <span className="text-gray-600 font-mono text-sm">Loading...</span>
+        <div className="min-h-[85vh] px-4 py-12 sm:py-16">
+          <div className="max-w-2xl mx-auto animate-pulse">
+            <div className="h-8 w-64 bg-surface-elevated rounded mx-auto mb-8" />
+            <div className="h-36 bg-surface-elevated/60 rounded mb-4" />
+            <div className="h-12 bg-surface-elevated/40 rounded" />
           </div>
         </div>
       }

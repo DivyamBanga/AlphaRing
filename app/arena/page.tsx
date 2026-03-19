@@ -243,6 +243,7 @@ export default function ArenaPage() {
             {strategies.map((entry, i) => (
               <motion.div
                 key={entry.id}
+                layout="position"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: i * 0.03, duration: 0.2 }}

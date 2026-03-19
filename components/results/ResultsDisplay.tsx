@@ -1,12 +1,62 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import type { StrategyConfig } from "@/lib/strategy-schema";
 import type { BacktestResult, TradeRecord } from "@/lib/backtester";
 import type { Grade } from "@/lib/grading";
 import EquityCurve from "@/components/ui/EquityCurve";
 import { useAuth } from "@/components/providers/AuthProvider";
+
+// ─── useCountUp Hook ──────────────────────────────────────
+
+function useCountUp(
+  target: number,
+  duration: number = 1200,
+  delay: number = 0
+): number {
+  const [current, setCurrent] = useState(0);
+  const rafRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    function startAnimation() {
+      startTimeRef.current = null;
+
+      function tick(now: number) {
+        if (startTimeRef.current === null) {
+          startTimeRef.current = now;
+        }
+        const elapsed = now - startTimeRef.current;
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease-out cubic: 1 - (1 - t)^3
+        const eased = 1 - Math.pow(1 - progress, 3);
+        setCurrent(eased * target);
+
+        if (progress < 1) {
+          rafRef.current = requestAnimationFrame(tick);
+        } else {
+          setCurrent(target);
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(tick);
+    }
+
+    timeoutId = setTimeout(startAnimation, delay);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, [target, duration, delay]);
+
+  return current;
+}
 
 // ─── Share Buttons ────────────────────────────────────
 
@@ -82,63 +132,96 @@ function ShareButtons({
 
 // ─── Stats Grid ──────────────────────────────────────────
 
+interface StatCardProps {
+  label: string;
+  color: string;
+  index: number;
+  target: number;
+  format: (v: number) => string;
+}
+
+function StatCard({ label, color, index, target, format }: StatCardProps) {
+  const delay = (0.8 + index * 0.1) * 1000;
+  const animated = useCountUp(target, 1200, delay);
+  return (
+    <motion.div
+      key={label}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.8 + index * 0.1 }}
+      className="p-4 rounded-xl bg-surface-card border border-surface-border/30"
+    >
+      <p className="text-[10px] font-mono text-gray-600 uppercase tracking-wider mb-1">
+        {label}
+      </p>
+      <p className={`text-xl font-display font-bold ${color}`}>
+        {format(animated)}
+      </p>
+    </motion.div>
+  );
+}
+
 function StatsGrid({ result }: { result: BacktestResult }) {
-  const stats = [
+  const stats: Array<{
+    label: string;
+    target: number;
+    color: string;
+    format: (v: number) => string;
+  }> = [
     {
       label: "Total Return",
-      value: `${result.totalReturnPct > 0 ? "+" : ""}${result.totalReturnPct.toFixed(1)}%`,
-      color:
-        result.totalReturnPct >= 0 ? "text-profit" : "text-loss",
+      target: result.totalReturnPct,
+      color: result.totalReturnPct >= 0 ? "text-profit" : "text-loss",
+      format: (v) => `${v > 0 ? "+" : ""}${v.toFixed(1)}%`,
     },
     {
       label: "Sharpe Ratio",
-      value: result.sharpeRatio.toFixed(2),
+      target: result.sharpeRatio,
       color:
         result.sharpeRatio >= 1
           ? "text-profit"
           : result.sharpeRatio >= 0
             ? "text-gray-200"
             : "text-loss",
+      format: (v) => v.toFixed(2),
     },
     {
       label: "Max Drawdown",
-      value: `-${result.maxDrawdownPct.toFixed(1)}%`,
+      target: result.maxDrawdownPct,
       color: result.maxDrawdownPct <= 20 ? "text-gray-200" : "text-loss",
+      format: (v) => `-${v.toFixed(1)}%`,
     },
     {
       label: "Win Rate",
-      value: `${result.winRatePct.toFixed(1)}%`,
+      target: result.winRatePct,
       color: result.winRatePct >= 50 ? "text-profit" : "text-gray-200",
+      format: (v) => `${v.toFixed(1)}%`,
     },
     {
       label: "Total Trades",
-      value: result.totalTrades.toString(),
+      target: result.totalTrades,
       color: "text-gray-200",
+      format: (v) => `${Math.round(v)}`,
     },
     {
       label: "Avg Duration",
-      value: `${result.avgTradeDuration.toFixed(0)}d`,
+      target: result.avgTradeDuration,
       color: "text-gray-200",
+      format: (v) => `${Math.round(v)}d`,
     },
   ];
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
       {stats.map((stat, i) => (
-        <motion.div
+        <StatCard
           key={stat.label}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 + i * 0.1 }}
-          className="p-4 rounded-xl bg-surface-card border border-surface-border/30"
-        >
-          <p className="text-[10px] font-mono text-gray-600 uppercase tracking-wider mb-1">
-            {stat.label}
-          </p>
-          <p className={`text-xl font-display font-bold ${stat.color}`}>
-            {stat.value}
-          </p>
-        </motion.div>
+          label={stat.label}
+          color={stat.color}
+          index={i}
+          target={stat.target}
+          format={stat.format}
+        />
       ))}
     </div>
   );
@@ -283,6 +366,7 @@ export default function ResultsDisplay({
   const [deployed, setDeployed] = useState(false);
   const [deployedId, setDeployedId] = useState<string | null>(null);
   const [deployError, setDeployError] = useState<string | null>(null);
+  const animatedScore = useCountUp(grade.score, 1000, 600);
 
   useEffect(() => {
     const timer = setTimeout(() => setGradeRevealed(true), 300);
@@ -370,7 +454,7 @@ export default function ResultsDisplay({
           transition={{ delay: 0.8 }}
           className="mt-3 text-sm text-gray-500"
         >
-          Score: {grade.score}/100
+          Score: {animatedScore.toFixed(0)}/100
         </motion.p>
         <motion.h2
           initial={{ opacity: 0, y: 10 }}
