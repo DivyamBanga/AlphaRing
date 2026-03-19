@@ -101,7 +101,7 @@ function DemoTerminal() {
       </div>
 
       {/* Terminal body */}
-      <div className="p-5 space-y-5 min-h-[200px]">
+      <div className="p-5 space-y-4 min-h-[160px]">
         {demoSteps.map((step, i) => (
           <div
             key={i}
@@ -163,8 +163,8 @@ export default function Hero() {
       </div>
 
       {/* Main hero content */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center min-h-[75vh]">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-14">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left: Headline */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -172,7 +172,7 @@ export default function Hero() {
             transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             {/* Label */}
-            <div className="flex items-center gap-2 mb-8">
+            <div className="flex items-center gap-2 mb-5">
               <div className="w-1.5 h-1.5 rounded-full bg-accent live-dot" />
               <span className="text-[10px] font-mono text-[#555] uppercase tracking-[0.3em]">
                 Open Arena — Compete Now
@@ -182,23 +182,23 @@ export default function Hero() {
             {/* Main headline */}
             <h1 className="font-display font-black uppercase leading-[0.88] tracking-tight">
               <span
-                className="block text-[clamp(3.5rem,8vw,6.5rem)] text-[#F0F0EE]"
+                className="block text-[clamp(2.6rem,5.5vw,4.8rem)] text-[#F0F0EE]"
               >
                 DESCRIBE
               </span>
               <span
-                className="block text-[clamp(3.5rem,8vw,6.5rem)] text-[#F0F0EE]"
+                className="block text-[clamp(2.6rem,5.5vw,4.8rem)] text-[#F0F0EE]"
               >
                 A TRADE.
               </span>
               <span
-                className="block text-[clamp(3.5rem,8vw,6.5rem)]"
+                className="block text-[clamp(2.6rem,5.5vw,4.8rem)]"
                 style={{ color: "var(--accent)" }}
               >
                 WATCH IT
               </span>
               <span
-                className="block text-[clamp(3.5rem,8vw,6.5rem)]"
+                className="block text-[clamp(2.6rem,5.5vw,4.8rem)]"
                 style={{ color: "var(--accent)" }}
               >
                 FIGHT.
@@ -206,7 +206,7 @@ export default function Hero() {
             </h1>
 
             {/* Horizontal rule */}
-            <div className="my-8 flex items-center gap-4">
+            <div className="my-5 flex items-center gap-4">
               <div className="flex-1 h-px bg-[#1E1E1E]" />
               <div className="w-1 h-1 bg-accent" />
             </div>
@@ -217,7 +217,7 @@ export default function Hero() {
             </p>
 
             {/* CTAs */}
-            <div className="mt-10 flex flex-col sm:flex-row gap-3">
+            <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <Link
                 href="/create?mode=guided"
                 className="btn-shine inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-accent text-[#080808] font-display font-black text-sm uppercase tracking-[0.1em] hover:bg-accent-light transition-colors"
@@ -236,7 +236,7 @@ export default function Hero() {
             </div>
 
             {/* Stats strip */}
-            <div className="mt-12 flex items-center gap-6 pt-6 border-t border-[#1A1A1A]">
+            <div className="mt-6 flex items-center gap-6 pt-5 border-t border-[#1A1A1A]">
               {[
                 { value: "10", label: "Years of data" },
                 { value: "50+", label: "Stocks covered" },

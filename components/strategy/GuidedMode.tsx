@@ -4,6 +4,15 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { StrategyConfig } from "@/lib/strategy-schema";
 
+const STARTER_CHIPS = [
+  { label: "RSI dip buy", prompt: "Buy when RSI drops below 30 and sell when it rises above 70" },
+  { label: "Golden cross", prompt: "Buy when the 50-day moving average crosses above the 200-day moving average" },
+  { label: "Volume breakout", prompt: "Buy when volume spikes to 3x the 20-day average and price is near a 52-week high" },
+  { label: "Dip buyer", prompt: "Buy popular tech stocks when they drop 10% in a week, sell when up 20%" },
+  { label: "Mean reversion", prompt: "Buy S&P 500 stocks when they fall 15% below their 200-day moving average" },
+  { label: "MACD momentum", prompt: "Buy when MACD line crosses above the signal line and RSI is above 50" },
+];
+
 interface GuidedModeProps {
   initialPrompt: string;
   onStrategyReady: (strategy: StrategyConfig, prompt?: string) => void;
@@ -194,6 +203,26 @@ export default function GuidedMode({
                 disabled={isLoading}
                 autoFocus
               />
+
+              {/* Quick-start chips */}
+              <div className="px-5 pb-4 pt-3 border-t border-[#141414]">
+                <p className="text-[9px] font-mono text-[#2A2A2A] uppercase tracking-wider mb-2">
+                  Not sure where to start?
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {STARTER_CHIPS.map((chip) => (
+                    <button
+                      key={chip.label}
+                      type="button"
+                      onClick={() => setPrompt(chip.prompt)}
+                      disabled={isLoading}
+                      className="text-[9px] font-mono text-[#3A3A3A] border border-[#1E1E1E] px-2.5 py-1 hover:border-accent/50 hover:text-accent transition-all uppercase tracking-wider disabled:opacity-30"
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {error && (
