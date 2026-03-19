@@ -18,6 +18,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://alpharing.vercel.app"
+  ),
   title: "AlphaRing — Describe a trading strategy. Watch it compete.",
   description:
     "Type a trading strategy in plain English. AlphaRing turns it into a real algorithm, backtests it against 10 years of market data, and ranks it on a global leaderboard. No code. No money. Just your idea vs theirs.",

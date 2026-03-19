@@ -13,6 +13,76 @@ import {
   type StrategyType,
 } from "@/lib/mock-strategies";
 
+// ── Share Buttons ────────────────────────────────────
+
+interface ShareButtonsProps {
+  strategyName: string;
+  grade: string;
+  returnPct: number;
+  strategyId: string;
+}
+
+function ShareButtons({
+  strategyName,
+  grade,
+  returnPct,
+  strategyId,
+}: ShareButtonsProps) {
+  const [copied, setCopied] = useState(false);
+
+  const siteUrl =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : "https://alpharing.vercel.app";
+
+  const strategyUrl = `${siteUrl}/strategy/${strategyId}`;
+
+  const returnDisplay =
+    returnPct > 0 ? `+${returnPct.toFixed(1)}` : returnPct.toFixed(1);
+
+  const tweetText = `My trading algorithm "${strategyName}" got an ${grade} on AlphaRing — ${returnDisplay}% return over 10 years. Can you beat it? ${strategyUrl} #AlphaRing #AlgoTrading`;
+
+  function handleShare() {
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(strategyUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+    }
+  }
+
+  return (
+    <div className="flex gap-2">
+      <button
+        onClick={handleShare}
+        className="flex items-center gap-1.5 px-3 py-2 border border-[#2A2A2A] text-[10px] font-mono uppercase tracking-wider text-gray-400 hover:border-[#C5FF00] hover:text-[#C5FF00] transition-colors"
+      >
+        <span className="font-bold">𝕏</span>
+        <span>Share</span>
+      </button>
+      <button
+        onClick={handleCopy}
+        className="flex items-center gap-1.5 px-3 py-2 border border-[#2A2A2A] text-[10px] font-mono uppercase tracking-wider text-gray-400 hover:border-[#C5FF00] hover:text-[#C5FF00] transition-colors"
+      >
+        {copied ? (
+          <span className="text-[#C5FF00]">Copied!</span>
+        ) : (
+          <span>Copy Link</span>
+        )}
+      </button>
+    </div>
+  );
+}
+
 // ── Types ───────────────────────────────────────────────
 
 interface StrategyDetail {
@@ -554,7 +624,7 @@ export default function StrategyDetailPage() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.4 }}
-          className="flex flex-col sm:flex-row gap-3 pt-4 pb-8"
+          className="flex flex-col sm:flex-row gap-3 pt-4"
         >
           <button
             onClick={() =>
@@ -574,6 +644,24 @@ export default function StrategyDetailPage() {
           >
             Challenge This Strategy
           </button>
+        </motion.div>
+
+        {/* Share Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.4 }}
+          className="pt-4 border-t border-[#1A1A1A] pb-8"
+        >
+          <p className="text-[9px] font-mono text-[#3A3A3A] uppercase tracking-wider mb-3">
+            Share this strategy
+          </p>
+          <ShareButtons
+            strategyName={strategy.name}
+            grade={strategy.grade}
+            returnPct={strategy.returnPct}
+            strategyId={strategy.id}
+          />
         </motion.div>
       </div>
     </div>

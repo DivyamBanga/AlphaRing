@@ -8,6 +8,78 @@ import type { Grade } from "@/lib/grading";
 import EquityCurve from "@/components/ui/EquityCurve";
 import { useAuth } from "@/components/providers/AuthProvider";
 
+// ─── Share Buttons ────────────────────────────────────
+
+interface ShareButtonsProps {
+  strategyName: string;
+  grade: string;
+  returnPct: number;
+  strategyId?: string;
+}
+
+function ShareButtons({
+  strategyName,
+  grade,
+  returnPct,
+  strategyId,
+}: ShareButtonsProps) {
+  const [copied, setCopied] = useState(false);
+
+  const siteUrl =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : "https://alpharing.vercel.app";
+
+  const strategyUrl = strategyId
+    ? `${siteUrl}/strategy/${strategyId}`
+    : siteUrl;
+
+  const returnDisplay =
+    returnPct > 0 ? `+${returnPct.toFixed(1)}` : returnPct.toFixed(1);
+
+  const tweetText = `My trading algorithm "${strategyName}" got an ${grade} on AlphaRing — ${returnDisplay}% return over 10 years. Can you beat it? ${strategyUrl} #AlphaRing #AlgoTrading`;
+
+  function handleShare() {
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(strategyUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback: select text
+    }
+  }
+
+  return (
+    <>
+      <button
+        onClick={handleShare}
+        className="flex items-center gap-1.5 px-3 py-2 border border-[#2A2A2A] text-[10px] font-mono uppercase tracking-wider text-gray-400 hover:border-[#C5FF00] hover:text-[#C5FF00] transition-colors"
+      >
+        <span className="font-bold">𝕏</span>
+        <span>Share</span>
+      </button>
+      <button
+        onClick={handleCopy}
+        className="flex items-center gap-1.5 px-3 py-2 border border-[#2A2A2A] text-[10px] font-mono uppercase tracking-wider text-gray-400 hover:border-[#C5FF00] hover:text-[#C5FF00] transition-colors"
+      >
+        {copied ? (
+          <span className="text-[#C5FF00]">Copied!</span>
+        ) : (
+          <span>Copy Link</span>
+        )}
+      </button>
+    </>
+  );
+}
+
 // ─── Stats Grid ──────────────────────────────────────────
 
 function StatsGrid({ result }: { result: BacktestResult }) {
@@ -209,6 +281,7 @@ export default function ResultsDisplay({
   const { user, signInWithGitHub } = useAuth();
   const [gradeRevealed, setGradeRevealed] = useState(false);
   const [deployed, setDeployed] = useState(false);
+  const [deployedId, setDeployedId] = useState<string | null>(null);
   const [deployError, setDeployError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -246,6 +319,8 @@ export default function ResultsDisplay({
       });
 
       if (response.ok) {
+        const data = await response.json();
+        if (data.id) setDeployedId(data.id);
         setDeployed(true);
       } else {
         const data = await response.json();
@@ -367,7 +442,7 @@ export default function ResultsDisplay({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.9 }}
-        className="flex flex-col sm:flex-row gap-3 pt-4 pb-8"
+        className="flex flex-col sm:flex-row gap-3 pt-4"
       >
         <div className="flex-1 space-y-2">
           <button
@@ -401,6 +476,26 @@ export default function ResultsDisplay({
         >
           Edit
         </button>
+      </motion.div>
+
+      {/* Share Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: deployed ? 0.3 : 1.0 }}
+        className="pt-4 border-t border-[#1A1A1A] pb-8"
+      >
+        <p className="text-[9px] font-mono text-[#3A3A3A] uppercase tracking-wider mb-3">
+          Share your results
+        </p>
+        <div className="flex gap-2">
+          <ShareButtons
+            strategyName={strategy.name}
+            grade={grade.letter}
+            returnPct={result.totalReturnPct}
+            strategyId={deployedId || undefined}
+          />
+        </div>
       </motion.div>
     </div>
   );
