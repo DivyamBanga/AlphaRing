@@ -3,13 +3,45 @@
 import { useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
 import type { StrategyConfig } from "@/lib/strategy-schema";
 import type { BacktestResult } from "@/lib/backtester";
 import type { Grade } from "@/lib/grading";
 import GuidedMode from "@/components/strategy/GuidedMode";
 import AdvancedMode from "@/components/strategy/AdvancedMode";
-import ForgeSequence from "@/components/strategy/ForgeSequence";
-import ResultsDisplay from "@/components/results/ResultsDisplay";
+
+// Code-split heavy components — backtesting engine + charts are only loaded
+// when the user actually triggers the forge/results phases, never on landing.
+const ForgeSequence = dynamic(
+  () => import("@/components/strategy/ForgeSequence"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="max-w-3xl mx-auto text-center py-20 animate-pulse">
+        <div className="h-6 w-48 bg-surface-elevated rounded mx-auto mb-6" />
+        <div className="h-48 bg-surface-elevated/50 rounded-xl" />
+      </div>
+    ),
+  }
+);
+
+const ResultsDisplay = dynamic(
+  () => import("@/components/results/ResultsDisplay"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="max-w-3xl mx-auto animate-pulse space-y-6 py-8">
+        <div className="w-28 h-28 bg-surface-elevated rounded-2xl mx-auto" />
+        <div className="h-48 bg-surface-elevated/50 rounded-xl" />
+        <div className="grid grid-cols-3 gap-3">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-20 bg-surface-elevated/40 rounded-xl" />
+          ))}
+        </div>
+      </div>
+    ),
+  }
+);
 
 type Phase = "input" | "forge" | "results";
 

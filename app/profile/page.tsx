@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { isSupabaseConfigured, createClient } from "@/lib/supabase";
@@ -210,9 +211,11 @@ export default function ProfilePage() {
           className="flex items-start gap-4 mb-10"
         >
           {avatarUrl ? (
-            <img
+            <Image
               src={avatarUrl}
               alt=""
+              width={56}
+              height={56}
               className="w-14 h-14 rounded-2xl border border-surface-border"
             />
           ) : (

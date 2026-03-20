@@ -18,7 +18,8 @@
       "Bash(find C:/Users/divya/Desktop/Projects/AlphaRing -not -path */node_modules/* -not -path */.git/* -type f)",
       "Bash(powershell -Command \"$input | ConvertFrom-Json | Select-Object name, grade, compositeScore, @{N=''''equityCurveLen'''';E={$_quityCurve.Count}}, @{N=''''tradeLogLen'''';E={$_radeLog.Count}}\")",
       "WebSearch",
-      "Bash(node -e \"const m = require\\(''./lib/mock-strategies''\\); console.log\\(''Total strategies:'', m.MOCK_STRATEGIES.length\\)\")"
+      "Bash(node -e \"const m = require\\(''./lib/mock-strategies''\\); console.log\\(''Total strategies:'', m.MOCK_STRATEGIES.length\\)\")",
+      "Bash(du -h .next/static/chunks/*.js)"
     ]
   }
 }

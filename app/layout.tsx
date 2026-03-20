@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Barlow_Condensed, JetBrains_Mono } from "next/font/google";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
@@ -36,6 +36,12 @@ export const metadata: Metadata = {
     description:
       "Describe a trading strategy in English. Watch it compete against the world.",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#080808",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

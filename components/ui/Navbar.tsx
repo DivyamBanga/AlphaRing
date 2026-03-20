@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/components/providers/AuthProvider";
 
@@ -33,9 +34,11 @@ function UserMenu() {
         className="flex items-center gap-2 text-xs text-[#666] hover:text-[#F0F0EE] transition-colors px-2 py-1"
       >
         {avatarUrl ? (
-          <img
+          <Image
             src={avatarUrl}
             alt=""
+            width={20}
+            height={20}
             className="w-5 h-5 rounded-full border border-[#333]"
           />
         ) : (
