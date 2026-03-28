@@ -19,7 +19,8 @@
       "Bash(powershell -Command \"$input | ConvertFrom-Json | Select-Object name, grade, compositeScore, @{N=''''equityCurveLen'''';E={$_quityCurve.Count}}, @{N=''''tradeLogLen'''';E={$_radeLog.Count}}\")",
       "WebSearch",
       "Bash(node -e \"const m = require\\(''./lib/mock-strategies''\\); console.log\\(''Total strategies:'', m.MOCK_STRATEGIES.length\\)\")",
-      "Bash(du -h .next/static/chunks/*.js)"
+      "Bash(du -h .next/static/chunks/*.js)",
+      "Bash(npm i:*)"
     ]
   }
 }

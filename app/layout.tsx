@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Barlow_Condensed, JetBrains_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import AuthProvider from "@/components/providers/AuthProvider";
@@ -59,6 +60,7 @@ export default function RootLayout({
           <Navbar />
           <main className="pt-12">{children}</main>
           <Footer />
+          <Analytics />
         </AuthProvider>
       </body>
     </html>
