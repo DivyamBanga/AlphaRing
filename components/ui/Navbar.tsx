@@ -2,54 +2,96 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/components/providers/AuthProvider";
 
-function UserMenu() {
-  const { user, profile, signOut } = useAuth();
+function UserDisplay() {
+  const { user, setUsername, clearUser } = useAuth();
   const [open, setOpen] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [showInput, setShowInput] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setOpen(false);
+        setShowInput(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (!user) return null;
+  useEffect(() => {
+    if (showInput && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [showInput]);
 
-  const displayName = profile?.username || user.user_metadata?.name || "User";
-  const avatarUrl =
-    profile?.avatar_url || user.user_metadata?.avatar_url || null;
+  function handleNameSubmit() {
+    if (nameInput.trim().length >= 2) {
+      setUsername(nameInput.trim());
+      setShowInput(false);
+      setNameInput("");
+    }
+  }
 
+  // No user yet — show "Enter Name" button
+  if (!user) {
+    return (
+      <div ref={menuRef} className="relative">
+        {!showInput ? (
+          <button
+            onClick={() => setShowInput(true)}
+            className="text-[10px] uppercase tracking-[0.15em] px-3 py-1.5 border border-accent/40 text-accent hover:bg-accent hover:text-[#080808] transition-all font-bold"
+          >
+            Enter Name
+          </button>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex items-center gap-1.5"
+          >
+            <input
+              ref={inputRef}
+              type="text"
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleNameSubmit(); }}
+              placeholder="Your name"
+              maxLength={20}
+              className="w-28 px-2.5 py-1.5 bg-[#0D0D0D] border border-[#2A2A2A] text-[11px] font-mono text-[#C0C0BE] placeholder-[#333] focus:outline-none focus:border-accent/40"
+            />
+            <button
+              onClick={handleNameSubmit}
+              disabled={nameInput.trim().length < 2}
+              className="px-2.5 py-1.5 bg-accent text-[#080808] text-[10px] font-bold uppercase tracking-wider disabled:opacity-30 hover:bg-accent-light transition-colors"
+            >
+              Go
+            </button>
+          </motion.div>
+        )}
+      </div>
+    );
+  }
+
+  // Has user — show name + dropdown
   return (
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 text-xs text-[#666] hover:text-[#F0F0EE] transition-colors px-2 py-1"
       >
-        {avatarUrl ? (
-          <Image
-            src={avatarUrl}
-            alt=""
-            width={20}
-            height={20}
-            className="w-5 h-5 rounded-full border border-[#333]"
-          />
-        ) : (
-          <div className="w-5 h-5 rounded-sm bg-accent/20 border border-accent/30 flex items-center justify-center">
-            <span className="text-accent text-[9px] font-bold font-display">
-              {displayName[0]?.toUpperCase()}
-            </span>
-          </div>
-        )}
+        <div className="w-5 h-5 rounded-sm bg-accent/20 border border-accent/30 flex items-center justify-center">
+          <span className="text-accent text-[9px] font-bold font-display">
+            {user.username[0]?.toUpperCase()}
+          </span>
+        </div>
         <span className="hidden sm:inline max-w-[80px] truncate uppercase tracking-wider text-[10px]">
-          {displayName}
+          {user.username}
         </span>
         <span className="text-[#444]">▾</span>
       </button>
@@ -72,72 +114,10 @@ function UserMenu() {
             </Link>
             <div className="border-t border-[#1E1E1E]" />
             <button
-              onClick={() => { setOpen(false); signOut(); }}
+              onClick={() => { setOpen(false); clearUser(); }}
               className="w-full text-left px-4 py-2.5 text-xs text-[#555] hover:text-loss hover:bg-[#131313] transition-colors uppercase tracking-wider"
             >
-              Sign Out
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function SignInButton() {
-  const { signInWithGitHub, signInWithGoogle } = useAuth();
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  return (
-    <div ref={menuRef} className="relative">
-      <button
-        onClick={() => setOpen(!open)}
-        className="text-[10px] uppercase tracking-[0.15em] px-3 py-1.5 border border-accent/40 text-accent hover:bg-accent hover:text-[#080808] transition-all font-bold"
-      >
-        Sign In
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.12 }}
-            className="absolute right-0 top-full mt-1 w-52 border border-[#2a2a2a] bg-[#0D0D0D] shadow-2xl z-50 overflow-hidden"
-          >
-            <button
-              onClick={() => { setOpen(false); signInWithGitHub(); }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-xs text-[#888] hover:text-[#F0F0EE] hover:bg-[#131313] transition-colors uppercase tracking-wider"
-            >
-              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-              </svg>
-              GitHub
-            </button>
-            <div className="border-t border-[#1E1E1E]" />
-            <button
-              onClick={() => { setOpen(false); signInWithGoogle(); }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-xs text-[#888] hover:text-[#F0F0EE] hover:bg-[#131313] transition-colors uppercase tracking-wider"
-            >
-              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-              </svg>
-              Google
+              Change Name
             </button>
           </motion.div>
         )}
@@ -147,7 +127,7 @@ function SignInButton() {
 }
 
 export default function Navbar() {
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -172,13 +152,13 @@ export default function Navbar() {
             Arena
           </Link>
           <Link
-            href="/create?mode=advanced"
+            href="/create?mode=guided"
             className="text-[10px] uppercase tracking-[0.2em] text-[#666] hover:text-[#F0F0EE] transition-colors"
           >
             Create
           </Link>
           <div className="w-px h-4 bg-[#222]" />
-          {!loading && (user ? <UserMenu /> : <SignInButton />)}
+          {!loading && <UserDisplay />}
         </div>
 
         {/* Mobile hamburger */}
@@ -214,61 +194,26 @@ export default function Navbar() {
                 Arena
               </Link>
               <Link
-                href="/create?mode=advanced"
+                href="/create?mode=guided"
                 className="block text-[10px] uppercase tracking-[0.2em] text-[#666] hover:text-[#F0F0EE] py-2 transition-colors"
                 onClick={() => setMobileOpen(false)}
               >
                 Create
               </Link>
-              {user && (
-                <Link
-                  href="/profile"
-                  className="block text-[10px] uppercase tracking-[0.2em] text-[#666] hover:text-[#F0F0EE] py-2 transition-colors"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  My Strategies
-                </Link>
-              )}
+              <Link
+                href="/profile"
+                className="block text-[10px] uppercase tracking-[0.2em] text-[#666] hover:text-[#F0F0EE] py-2 transition-colors"
+                onClick={() => setMobileOpen(false)}
+              >
+                My Strategies
+              </Link>
               <div className="pt-2">
-                {!loading && (user ? <MobileSignOut /> : <MobileSignIn />)}
+                {!loading && <UserDisplay />}
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </nav>
-  );
-}
-
-function MobileSignIn() {
-  const { signInWithGitHub, signInWithGoogle } = useAuth();
-  return (
-    <div className="space-y-2">
-      <button
-        onClick={signInWithGitHub}
-        className="w-full text-left text-[10px] uppercase tracking-[0.15em] px-4 py-2.5 border border-accent/40 text-accent hover:bg-accent hover:text-[#080808] transition-all font-bold"
-      >
-        Sign in with GitHub
-      </button>
-      <button
-        onClick={signInWithGoogle}
-        className="w-full text-left text-[10px] uppercase tracking-[0.15em] px-4 py-2.5 border border-[#222] text-[#666] hover:text-[#F0F0EE] hover:bg-[#131313] transition-all"
-      >
-        Sign in with Google
-      </button>
-    </div>
-  );
-}
-
-function MobileSignOut() {
-  const { signOut, profile, user } = useAuth();
-  const displayName = profile?.username || user?.user_metadata?.name || "User";
-  return (
-    <button
-      onClick={signOut}
-      className="w-full text-left text-[10px] uppercase tracking-[0.15em] px-4 py-2.5 border border-[#222] text-[#555] hover:text-loss transition-colors"
-    >
-      Sign out ({displayName})
-    </button>
   );
 }

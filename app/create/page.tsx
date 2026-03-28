@@ -50,7 +50,7 @@ function CreateContent() {
   const router = useRouter();
 
   const mode =
-    (searchParams.get("mode") as "guided" | "advanced") || "advanced";
+    (searchParams.get("mode") as "guided" | "advanced") || "guided";
   const prefillPrompt = searchParams.get("prompt") || "";
 
   const [phase, setPhase] = useState<Phase>("input");

@@ -23,27 +23,17 @@ export async function GET(
 
       const { data, error } = await supabase
         .from("strategies")
-        .select(
-          `
-          *,
-          profiles:user_id (username, avatar_url)
-        `
-        )
+        .select("*")
         .eq("id", id)
         .single();
 
       if (error || !data) throw error || new Error("Not found");
 
-      const profile = data.profiles as {
-        username: string | null;
-        avatar_url: string | null;
-      } | null;
-
       return NextResponse.json({
         id: data.id,
         name: data.name,
-        creator: profile?.username || "Anonymous",
-        creatorAvatar: profile?.avatar_url || null,
+        creator: data.user_name || "Anonymous",
+        creatorAvatar: null,
         englishPrompt: data.english_prompt,
         type: data.strategy_type,
         config: data.json_config,

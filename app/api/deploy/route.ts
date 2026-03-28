@@ -4,12 +4,13 @@ import { isSupabaseConfigured, createServerClient } from "@/lib/supabase-server"
 
 /**
  * Deploy a strategy to the leaderboard.
+ * Accepts a username + userId from the client (simple name-based identity).
  * Saves to Supabase if configured, otherwise returns mock success.
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { strategy, result: results, englishPrompt } = body;
+    const { strategy, result: results, englishPrompt, username, userId } = body;
 
     if (!strategy) {
       return NextResponse.json(
@@ -33,26 +34,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!username || !userId) {
+      return NextResponse.json(
+        { error: "Please enter your name to deploy." },
+        { status: 400 }
+      );
+    }
+
     // ── Supabase: save to database ─────────────────────
     if (isSupabaseConfigured()) {
       const supabase = await createServerClient();
 
-      // Get authenticated user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        return NextResponse.json(
-          { error: "Authentication required. Please sign in to deploy." },
-          { status: 401 }
-        );
-      }
-
       const { data, error: dbError } = await supabase
         .from("strategies")
         .insert({
-          user_id: user.id,
+          user_id: userId,
+          user_name: username,
           name: strategy.name,
           english_prompt:
             englishPrompt || strategy.description || "",

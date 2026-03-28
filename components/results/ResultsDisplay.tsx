@@ -361,11 +361,13 @@ export default function ResultsDisplay({
   onEdit,
   onTryAnother,
 }: ResultsDisplayProps) {
-  const { user, signInWithGitHub } = useAuth();
+  const { user, setUsername } = useAuth();
   const [gradeRevealed, setGradeRevealed] = useState(false);
   const [deployed, setDeployed] = useState(false);
   const [deployedId, setDeployedId] = useState<string | null>(null);
   const [deployError, setDeployError] = useState<string | null>(null);
+  const [nameInput, setNameInput] = useState("");
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
   const animatedScore = useCountUp(grade.score, 1000, 600);
 
   useEffect(() => {
@@ -375,7 +377,7 @@ export default function ResultsDisplay({
 
   async function handleDeploy() {
     if (!user) {
-      signInWithGitHub();
+      setShowNamePrompt(true);
       return;
     }
 
@@ -387,6 +389,8 @@ export default function ResultsDisplay({
         body: JSON.stringify({
           strategy,
           englishPrompt: englishPrompt || strategy.description,
+          username: user.username,
+          userId: user.id,
           result: {
             totalReturnPct: result.totalReturnPct,
             sharpeRatio: result.sharpeRatio,
@@ -413,6 +417,14 @@ export default function ResultsDisplay({
     } catch {
       setDeployError("Failed to connect. Please try again.");
     }
+  }
+
+  function handleNameSubmitAndDeploy() {
+    if (nameInput.trim().length < 2) return;
+    setUsername(nameInput.trim());
+    setShowNamePrompt(false);
+    // Deploy will happen on next render when user is set
+    setTimeout(() => handleDeploy(), 100);
   }
 
   return (
@@ -529,21 +541,39 @@ export default function ResultsDisplay({
         className="flex flex-col sm:flex-row gap-3 pt-4"
       >
         <div className="flex-1 space-y-2">
-          <button
-            onClick={handleDeploy}
-            disabled={deployed}
-            className={`btn-shine w-full py-3.5 font-display font-black text-sm uppercase tracking-[0.1em] transition-colors ${
-              deployed
-                ? "bg-profit/20 text-profit border border-profit/30 cursor-default"
-                : "bg-accent text-[#080808] hover:bg-accent-light"
-            }`}
-          >
-            {deployed
-              ? "Deployed!"
-              : user
-                ? "Deploy to Leaderboard"
-                : "Sign In to Deploy"}
-          </button>
+          {showNamePrompt && !user ? (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleNameSubmitAndDeploy(); }}
+                placeholder="Enter your name to deploy"
+                maxLength={20}
+                autoFocus
+                className="flex-1 px-4 py-3 bg-[#0D0D0D] border border-[#2A2A2A] text-sm font-mono text-[#C0C0BE] placeholder-[#444] focus:outline-none focus:border-accent/40"
+              />
+              <button
+                onClick={handleNameSubmitAndDeploy}
+                disabled={nameInput.trim().length < 2}
+                className="btn-shine px-6 py-3 bg-accent text-[#080808] font-display font-black text-sm uppercase tracking-[0.1em] hover:bg-accent-light transition-colors disabled:opacity-30"
+              >
+                Deploy
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleDeploy}
+              disabled={deployed}
+              className={`btn-shine w-full py-3.5 font-display font-black text-sm uppercase tracking-[0.1em] transition-colors ${
+                deployed
+                  ? "bg-profit/20 text-profit border border-profit/30 cursor-default"
+                  : "bg-accent text-[#080808] hover:bg-accent-light"
+              }`}
+            >
+              {deployed ? "Deployed!" : "Deploy to Leaderboard"}
+            </button>
+          )}
           {deployError && (
             <p className="text-xs text-loss text-center">{deployError}</p>
           )}

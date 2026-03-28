@@ -8,146 +8,83 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
-import type { User } from "@supabase/supabase-js";
-import { isSupabaseConfigured, createClient } from "@/lib/supabase";
-import type { DbProfile } from "@/lib/supabase";
+
+interface UserIdentity {
+  id: string;
+  username: string;
+}
 
 interface AuthContextType {
-  user: User | null;
-  profile: DbProfile | null;
+  user: UserIdentity | null;
   loading: boolean;
-  signInWithGitHub: () => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
-  signOut: () => Promise<void>;
-  updateUsername: (username: string) => Promise<boolean>;
-  refreshProfile: () => Promise<void>;
+  setUsername: (name: string) => void;
+  clearUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  profile: null,
   loading: true,
-  signInWithGitHub: async () => {},
-  signInWithGoogle: async () => {},
-  signOut: async () => {},
-  updateUsername: async () => false,
-  refreshProfile: async () => {},
+  setUsername: () => {},
+  clearUser: () => {},
 });
 
 export function useAuth() {
   return useContext(AuthContext);
 }
 
+function generateId(): string {
+  return `user_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<DbProfile | null>(null);
+  const [user, setUser] = useState<UserIdentity | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const configured = isSupabaseConfigured();
-
-  const fetchProfile = useCallback(
-    async (userId: string) => {
-      if (!configured) return;
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-      if (data) setProfile(data as DbProfile);
-    },
-    [configured]
-  );
-
-  const refreshProfile = useCallback(async () => {
-    if (user) await fetchProfile(user.id);
-  }, [user, fetchProfile]);
-
   useEffect(() => {
-    if (!configured) {
-      setLoading(false);
-      return;
-    }
-
-    const supabase = createClient();
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      if (currentUser) fetchProfile(currentUser.id);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      if (currentUser) {
-        fetchProfile(currentUser.id);
-      } else {
-        setProfile(null);
+    try {
+      const stored = localStorage.getItem("alpharing_user");
+      if (stored) {
+        const parsed = JSON.parse(stored) as UserIdentity;
+        if (parsed.id && parsed.username) {
+          setUser(parsed);
+        }
       }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [configured, fetchProfile]);
-
-  async function signInWithGitHub() {
-    if (!configured) return;
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-  }
-
-  async function signInWithGoogle() {
-    if (!configured) return;
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-  }
-
-  async function signOut() {
-    if (!configured) return;
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
-  }
-
-  async function updateUsername(username: string): Promise<boolean> {
-    if (!configured || !user) return false;
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("profiles")
-      .update({ username, updated_at: new Date().toISOString() })
-      .eq("id", user.id);
-    if (!error) {
-      await fetchProfile(user.id);
-      return true;
+    } catch {
+      // ignore
     }
-    return false;
-  }
+    setLoading(false);
+  }, []);
+
+  const setUsername = useCallback((name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+
+    // Check if we already have an id
+    let id: string;
+    try {
+      const stored = localStorage.getItem("alpharing_user");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        id = parsed.id || generateId();
+      } else {
+        id = generateId();
+      }
+    } catch {
+      id = generateId();
+    }
+
+    const identity: UserIdentity = { id, username: trimmed };
+    localStorage.setItem("alpharing_user", JSON.stringify(identity));
+    setUser(identity);
+  }, []);
+
+  const clearUser = useCallback(() => {
+    localStorage.removeItem("alpharing_user");
+    setUser(null);
+  }, []);
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        profile,
-        loading,
-        signInWithGitHub,
-        signInWithGoogle,
-        signOut,
-        updateUsername,
-        refreshProfile,
-      }}
-    >
+    <AuthContext.Provider value={{ user, loading, setUsername, clearUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { isSupabaseConfigured, createClient } from "@/lib/supabase";
@@ -24,100 +23,13 @@ interface UserStrategy {
   created_at: string;
 }
 
-function UsernameEditor() {
-  const { profile, updateUsername } = useAuth();
-  const [editing, setEditing] = useState(false);
-  const [username, setUsername] = useState(profile?.username || "");
-  const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-
-  const hasUsername = !!profile?.username;
-
-  async function handleSave() {
-    if (!username.trim() || saving) return;
-
-    if (username.trim().length < 3) {
-      setError("Username must be at least 3 characters");
-      return;
-    }
-    if (!/^[a-zA-Z0-9_-]+$/.test(username.trim())) {
-      setError("Only letters, numbers, hyphens, and underscores");
-      return;
-    }
-
-    setSaving(true);
-    setError(null);
-    const success = await updateUsername(username.trim());
-    setSaving(false);
-
-    if (success) {
-      setEditing(false);
-    } else {
-      setError("Username taken or update failed");
-    }
-  }
-
-  if (!editing && hasUsername) {
-    return (
-      <div className="flex items-center gap-2">
-        <span className="text-lg font-display font-bold">
-          {profile.username}
-        </span>
-        <span className="text-xs text-gray-600">(username set)</span>
-      </div>
-    );
-  }
-
-  if (!editing && !hasUsername) {
-    return (
-      <button
-        onClick={() => setEditing(true)}
-        className="text-sm text-accent hover:text-accent-light transition-colors"
-      >
-        Set username
-      </button>
-    );
-  }
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Choose a username"
-          maxLength={30}
-          className="px-3 py-1.5 bg-surface-elevated border border-surface-border/50 rounded-lg text-sm text-white focus:outline-none focus:border-accent/30"
-        />
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-3 py-1.5 bg-accent/15 text-accent text-sm rounded-lg hover:bg-accent/25 transition-colors disabled:opacity-50"
-        >
-          {saving ? "..." : "Save"}
-        </button>
-        <button
-          onClick={() => {
-            setEditing(false);
-            setError(null);
-          }}
-          className="px-3 py-1.5 text-gray-500 text-sm hover:text-gray-300 transition-colors"
-        >
-          Cancel
-        </button>
-      </div>
-      {error && <p className="text-xs text-loss">{error}</p>}
-    </div>
-  );
-}
-
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, setUsername } = useAuth();
   const [strategies, setStrategies] = useState<UserStrategy[]>([]);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
+  const [nameInput, setNameInput] = useState("");
 
   const configured = isSupabaseConfigured();
 
@@ -164,15 +76,42 @@ export default function ProfilePage() {
     setToggling(null);
   }
 
-  // Not signed in
+  // Not signed in — prompt for name
   if (!authLoading && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-gray-400">Sign in to see your strategies</p>
+        <div className="text-center space-y-4 max-w-sm mx-auto px-4">
+          <h2 className="text-lg font-display font-bold">Enter your name</h2>
+          <p className="text-sm text-gray-500">
+            To see your strategies and deploy to the leaderboard.
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && nameInput.trim().length >= 2) {
+                  setUsername(nameInput.trim());
+                }
+              }}
+              placeholder="Your name"
+              maxLength={20}
+              className="flex-1 px-4 py-2.5 bg-[#0D0D0D] border border-[#2A2A2A] text-sm font-mono text-[#C0C0BE] placeholder-[#444] focus:outline-none focus:border-accent/40"
+            />
+            <button
+              onClick={() => {
+                if (nameInput.trim().length >= 2) setUsername(nameInput.trim());
+              }}
+              disabled={nameInput.trim().length < 2}
+              className="px-5 py-2.5 bg-accent text-[#080808] font-display font-black text-sm uppercase tracking-wider hover:bg-accent-light transition-colors disabled:opacity-30"
+            >
+              Go
+            </button>
+          </div>
           <Link
             href="/"
-            className="inline-block text-sm text-accent hover:text-accent-light transition-colors"
+            className="inline-block text-sm text-[#555] hover:text-accent transition-colors"
           >
             Go Home
           </Link>
@@ -195,10 +134,7 @@ export default function ProfilePage() {
     );
   }
 
-  const displayName =
-    profile?.username || user?.user_metadata?.name || "Trader";
-  const avatarUrl =
-    profile?.avatar_url || user?.user_metadata?.avatar_url || null;
+  const displayName = user?.username || "Trader";
   const activeCount = strategies.filter((s) => s.is_active).length;
 
   return (
@@ -210,24 +146,13 @@ export default function ProfilePage() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-start gap-4 mb-10"
         >
-          {avatarUrl ? (
-            <Image
-              src={avatarUrl}
-              alt=""
-              width={56}
-              height={56}
-              className="w-14 h-14 rounded-2xl border border-surface-border"
-            />
-          ) : (
-            <div className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center">
-              <span className="text-accent text-xl font-bold">
-                {displayName[0]?.toUpperCase()}
-              </span>
-            </div>
-          )}
+          <div className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+            <span className="text-accent text-xl font-bold">
+              {displayName[0]?.toUpperCase()}
+            </span>
+          </div>
           <div className="flex-1">
             <h1 className="text-2xl font-display font-bold">{displayName}</h1>
-            <UsernameEditor />
             <p className="text-sm text-gray-500 mt-1">
               {strategies.length} strategies &middot; {activeCount} active
             </p>
@@ -258,7 +183,7 @@ export default function ProfilePage() {
             <div className="rounded-xl border border-surface-border/30 p-8 text-center">
               <p className="text-gray-400 mb-4">No strategies deployed yet</p>
               <Link
-                href="/create?mode=advanced"
+                href="/create?mode=guided"
                 className="btn-shine inline-flex px-5 py-2.5 bg-accent text-[#080808] font-display font-black text-sm uppercase tracking-[0.1em] hover:bg-accent-light transition-colors"
               >
                 Create Your First Strategy
